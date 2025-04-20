@@ -1,0 +1,325 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #1a237e; /* Dark Blue */
+  color: #fff;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header, footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em 2em;
+  background: #283593; /* Medium Blue */
+}
+
+h1 {
+  margin: 0;
+  letter-spacing: 2px;
+  font-weight: bold;
+  color: #FFC107; /* Meineke Yellow */
+}
+
+main {
+  flex-grow: 1;
+  padding: 1em;
+}
+
+#scoreboard {
+  display: flex;
+  flex-wrap: wrap; /* Allow teams to wrap on smaller screens */
+  justify-content: center;
+  margin: 1em 0;
+  gap: 1em;
+}
+
+.team-score {
+  background: #3949ab; /* Lighter Blue */
+  padding: 0.5em 1.5em;
+  border-radius: 8px;
+  font-size: 1.2em;
+  text-align: center;
+  min-width: 150px; /* Give some base width */
+}
+
+.team-name {
+  display: inline-block;
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  padding: 0.1em 0;
+}
+.team-name:hover {
+  border-bottom: 1px dashed #fff;
+}
+.team-name[contenteditable="true"] {
+  background-color: #fff;
+  color: #1a237e;
+  padding: 0.1em 0.3em;
+  outline: none;
+  border-radius: 3px;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75em;
+  max-width: 1000px;
+  margin: 2em auto;
+}
+
+.tile {
+  background: #fbc02d; /* Yellow */
+  color: #1a237e; /* Dark Blue text */
+  border: 2px solid #1a237e;
+  border-radius: 6px;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s, background 0.2s;
+  user-select: none;
+  text-align: center;
+  padding: 0.5em;
+}
+
+.tile:hover {
+  transform: scale(1.03);
+}
+
+.tile.category {
+  background: #283593; /* Medium Blue */
+  color: #fff;
+  font-size: 1.1em;
+  cursor: default;
+  font-weight: normal;
+  padding: 0.2em;
+}
+.tile.category:hover {
+  transform: none;
+}
+
+.tile.revealed {
+  background: #fffde7; /* Light Yellow */
+  color: #1a237e;
+  font-size: 1.1em; /* Smaller font for questions/answers */
+  font-weight: normal;
+}
+
+.tile.locked {
+  background: #bdbdbd; /* Grey */
+  color: #555;
+  font-size: 1.1em;
+  font-weight: normal;
+  padding: 0.5em;
+}
+
+.tile .answer {
+  margin-bottom: 0.5em; 
+}
+
+.team-answer-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  justify-content: center;
+  font-size: 0.7em; /* Smaller buttons */
+}
+
+button {
+  font-size: 1em;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1.2em;
+  margin: 0.3em;
+  cursor: pointer;
+  background-color: #fbc02d;
+  color: #1a237e;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #FFC107; /* Brighter Yellow */
+}
+
+button#reset-btn {
+  background-color: #e53935; /* Red */
+  color: white;
+}
+button#reset-btn:hover {
+  background-color: #c62828; /* Darker Red */
+}
+
+button#audio-toggle {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  color: white;
+}
+
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  color: #222;
+  padding: 2em 3em;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+#final-jeopardy {
+  margin-top: 2em;
+  padding: 1.5em;
+  background: #283593;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#final-jeopardy h2 {
+  color: #FFC107;
+  margin-top: 0;
+}
+
+#final-jeopardy input[type="number"] {
+  padding: 0.4em;
+  margin: 0.3em 0;
+}
+
+/* Styles for Final Jeopardy outcome buttons */
+.fj-outcome-btn {
+  opacity: 0.7;
+  border: 2px solid transparent;
+}
+
+.fj-outcome-btn.selected {
+  opacity: 1;
+  border: 2px solid #fff; /* Highlight selected */
+  box-shadow: 0 0 5px #fff;
+}
+
+.fj-outcome-btn.correct.selected {
+  background-color: #4CAF50; /* Green for correct */
+  color: white;
+}
+
+.fj-outcome-btn.wrong.selected {
+  background-color: #f44336; /* Red for wrong */
+  color: white;
+}
+
+/* --- Final Jeopardy Drawer Styles --- */
+#final-jeopardy-drawer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.9); /* Dark semi-transparent background */
+  border-top: 2px solid #FFC107; /* Meineke Gold */
+  transform: translateY(100%); /* Start hidden below */
+  transition: transform 0.4s ease-in-out;
+  z-index: 1000; /* Ensure it's above other content */
+  padding: 20px;
+  box-sizing: border-box;
+  max-height: 80vh; /* Limit height */
+  overflow-y: auto; /* Add scroll if content exceeds height */
+}
+
+#final-jeopardy-drawer.drawer-open {
+  transform: translateY(0); /* Slide into view */
+}
+
+#close-final-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.8em;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Adjust section display inside drawer */
+#final-jeopardy-drawer section#final-jeopardy {
+  display: block !important; /* Override inline style when drawer opens */
+}
+
+/* --- End Drawer Styles --- */
+
+/* --- Final Results Styling --- */
+#final-results-display {
+  margin-top: 2em;
+  text-align: center;
+}
+
+#final-results-display h3 {
+  color: #FFC107; /* Meineke Gold */
+  font-size: 1.8em;
+  margin-bottom: 0.8em;
+}
+
+#final-results-display ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 400px; /* Limit width */
+}
+
+#final-results-display li {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.8em;
+  margin-bottom: 0.5em;
+  border-radius: 4px;
+  font-size: 1.3em;
+  font-weight: bold;
+  border-left: 5px solid #FFC107;
+}
+
+/* Style for the winning team(s) */
+#final-results-display li.winner {
+  background-color: #FFC107; /* Meineke Gold background */
+  color: #000; /* Black text for contrast */
+  border-left-color: #ff0000; /* Red border for winner */
+  font-weight: bolder;
+}
+
+#final-results-display li.winner::before {
+  content: '👑 ';
+  margin-right: 0.3em;
+}
+
+/* --- End Final Results Styling --- */
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+  h1 { font-size: 1.5em; }
+  #board { grid-template-columns: repeat(3, 1fr); }
+  .tile { min-height: 70px; font-size: 1.2em; }
+  .tile.category { font-size: 0.9em; }
+}
+
+@media (max-width: 600px) {
+  header, footer { padding: 0.8em 1em; }
+  #board { grid-template-columns: repeat(2, 1fr); }
+  .tile { min-height: 60px; font-size: 1em; }
+  .team-score { font-size: 1em; min-width: 120px; }
+  button { padding: 0.4em 0.8em; }
+}
