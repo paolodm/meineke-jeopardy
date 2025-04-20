@@ -300,7 +300,19 @@ function playSfx(type) {
 function setupFinalWagers() {
   let wagerInputsHTML = '';
   for (let i = 0; i < teams; i++) {
-    wagerInputsHTML += `<div>${teamNames[i]}: $ <input type="number" id="wager-${i}" min="0" max="${Math.max(0, scores[i])}" placeholder="Wager"></div>`;
+    const maxWager = Math.max(0, scores[i]);
+    wagerInputsHTML += `
+      <div class="wager-input-group">
+        <label for="wager-${i}">${teamNames[i]}: $ </label>
+        <input type="number" id="wager-${i}" 
+               min="0" 
+               max="${maxWager}" 
+               data-max-wager="${maxWager}" 
+               data-team-index="${i}"
+               oninput="validateWagerInput(this)">
+        <span class="max-wager-info">(Max: $${maxWager})</span>
+        <span id="wager-error-${i}" class="wager-error-message"></span>
+      </div>`;
   }
 
   finalSection.innerHTML = `
@@ -313,8 +325,47 @@ function setupFinalWagers() {
   document.getElementById('wager-form').addEventListener('submit', handleWagerSubmit);
 }
 
+function validateWagerInput(inputElement) {
+  const teamIndex = inputElement.dataset.teamIndex;
+  const maxWager = parseInt(inputElement.dataset.maxWager, 10);
+  const currentValue = parseInt(inputElement.value, 10);
+  const errorSpan = document.getElementById(`wager-error-${teamIndex}`);
+
+  if (isNaN(currentValue) || currentValue < 0) {
+    errorSpan.textContent = 'Invalid wager.';
+    inputElement.classList.add('invalid-wager');
+  } else if (currentValue > maxWager) {
+    errorSpan.textContent = `Cannot exceed $${maxWager}.`;
+    inputElement.classList.add('invalid-wager');
+  } else {
+    errorSpan.textContent = ''; // Clear error
+    inputElement.classList.remove('invalid-wager');
+  }
+
+  // Check all inputs and disable submit button if any are invalid
+  const form = inputElement.closest('form');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const allInputs = form.querySelectorAll('input[type="number"]');
+  let formIsValid = true;
+  allInputs.forEach(input => {
+    if (input.classList.contains('invalid-wager') || input.value === '') { // Also check if empty
+        formIsValid = false;
+    }
+  });
+  submitButton.disabled = !formIsValid;
+}
+
 function handleWagerSubmit(event) {
   event.preventDefault();
+
+  // Double-check validity on submit (though button should be disabled)
+  const form = event.target;
+  const invalidInputs = form.querySelectorAll('.invalid-wager');
+  if (invalidInputs.length > 0) {
+    console.warn("Submit blocked due to invalid wagers.");
+    return; // Stop submission
+  }
+
   console.log("Final Jeopardy: Locking in wagers."); 
   for (let i = 0; i < teams; i++) {
     const input = document.getElementById(`wager-${i}`);
