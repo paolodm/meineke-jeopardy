@@ -28,64 +28,61 @@ let finalJeopardyData = {
     outcomes: [] 
 };
 
-// --- Sample Questions (Load from questions.json ideally) ---
-const defaultQuestions = [
-  {
-    category: "Brakes",
-    questions: [
-      {q: "What does ABS stand for?", a: "Anti-lock Braking System", value: 100},
-      {q: "Which fluid do brakes use?", a: "Brake fluid", value: 200},
-      {q: "What part presses brake pads?", a: "Caliper", value: 300},
-      {q: "Rotor is part of which system?", a: "Braking system", value: 400},
-      {q: "What wears down with use?", a: "Brake pads", value: 500}
-    ]
-  },
-  {
-    category: "Oil",
-    questions: [
-      {q: "What does 5W-30 mean?", a: "Viscosity rating", value: 100},
-      {q: "When to change oil?", a: "Every 3,000-5,000 miles", value: 200},
-      {q: "What catches debris?", a: "Oil filter", value: 300},
-      {q: "What’s synthetic oil?", a: "Engineered lubricant", value: 400},
-      {q: "What’s the dipstick for?", a: "Checking oil level", value: 500}
-    ]
-  },
-  {
-    category: "Tires",
-    questions: [
-      {q: "What’s PSI?", a: "Pounds per square inch", value: 100},
-      {q: "How to check tread?", a: "Penny test", value: 200},
-      {q: "What’s wheel alignment?", a: "Adjusting angles", value: 300},
-      {q: "What’s TPMS?", a: "Tire Pressure Monitoring System", value: 400},
-      {q: "What’s a lug nut?", a: "Fastener for wheel", value: 500}
-    ]
-  },
-  {
-    category: "AC/Heating",
-    questions: [
-      {q: "What cools the air?", a: "Compressor", value: 100},
-      {q: "What’s Freon?", a: "Refrigerant", value: 200},
-      {q: "What’s a cabin filter?", a: "Air filter for interior", value: 300},
-      {q: "Heater core does what?", a: "Heats cabin", value: 400},
-      {q: "What’s a blend door?", a: "Controls air mix", value: 500}
-    ]
-  },
-  {
-    category: "General",
-    questions: [
-      {q: "Meineke’s slogan?", a: "On with life.", value: 100},
-      {q: "What’s an estimate?", a: "Cost calculation", value: 200},
-      {q: "What’s a work order?", a: "Repair documentation", value: 300},
-      {q: "ASE stands for?", a: "Automotive Service Excellence", value: 400},
-      {q: "What’s a courtesy check?", a: "Free inspection", value: 500}
-    ]
-  }
-];
+// --- New Questions Data Structure --- 
+const newQuestionsData = {
+  "Meineke Services": [
+    ["This service keeps your brakes functioning safely.", "What is a brake service?"],
+    ["Recommended every 3,000–5,000 miles for engine health.", "What is an oil change?"],
+    ["We inspect tread depth and rotate these for safety.", "What are tires?"],
+    ["This service uses diagnostic tools to identify issues.", "What is a diagnostic check?"],
+    ["This keeps your car's A/C system running cool.", "What is AC repair?"]
+  ],
+  "Car Care Know-How": [
+    ["You should change this fluid more often than most others.", "What is engine oil?"],
+    ["This light means your engine needs attention.", "What is the check engine light?"],
+    ["Worn out brake pads can cause this grinding part to wear.", "What is the rotor?"],
+    ["This belt is critical for engine timing.", "What is the timing belt?"],
+    ["Rotating your tires helps extend this.", "What is tire life?"]
+  ],
+  "Auto Parts & Tariffs": [
+    ["This term refers to a tax placed on imported goods like car parts.", "What is a tariff?"],
+    ["Because of inventory shortages, this European automaker has paused new car sales in the U.S.", "What is Land Rover (or Audi/Volkswagen)?"],
+    ["This Japanese automaker has held steady on prices while others raise theirs.", "What is Toyota?"],
+    ["This is the current length of the pause on new auto tariffs in the U.S.", "What is 30 days?"],
+    ["Tariffs and shipping issues have made it harder to get parts from this continent.", "What is Europe?"]
+  ],
+  "AC-tion Time!": [
+    ["A must-have gas for a functioning car A/C.", "What is refrigerant (like R-134a)?"],
+    ["A broken compressor means your A/C won’t do this.", "What is cool the air?"],
+    ["This filter can affect your A/C airflow.", "What is the cabin air filter?"],
+    ["A leak in this part often causes weak cooling.", "What is the condenser?"],
+    ["This tool checks A/C pressure and refrigerant levels.", "What is a manifold gauge set?"]
+  ],
+  "Behind the Shop Doors": [
+    ["This shop is located in Sterling, VA.", "What is Meineke #2701?"],
+    ["This scanner helps diagnose engine and emissions issues.", "What is an OBD-II scanner?"],
+    ["Customers appreciate this quality most in our team.", "What is honesty or customer service?"],
+    ["We recommend this before long road trips.", "What is a maintenance check?"],
+    ["This is the most common issue we fix during summer.", "What is A/C not blowing cold air?"]
+  ]
+};
 
 // --- Initialization & Setup ---
 
 function loadQuestions() {
-  boardData = JSON.parse(JSON.stringify(defaultQuestions));
+  boardData = []; // Reset board data before transformation
+  // Transform the new question structure
+  for (const category in newQuestionsData) {
+    const categoryQuestions = [];
+    newQuestionsData[category].forEach((pair, index) => {
+      categoryQuestions.push({
+        q: pair[0],
+        a: pair[1],
+        value: (index + 1) * 100 // Assign value based on index (100, 200, ...)
+      });
+    });
+    boardData.push({ category: category, questions: categoryQuestions });
+  }
 }
 
 function showTeamModal() {
