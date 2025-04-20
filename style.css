@@ -362,3 +362,77 @@ input.invalid-wager {
   .team-score { font-size: 1em; min-width: 120px; }
   button { padding: 0.4em 0.8em; }
 }
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px; /* Slightly smaller base font */
+  }
+
+  #scoreboard {
+    flex-direction: column; /* Stack scores vertically */
+    align-items: stretch; /* Make items take full width */
+  }
+
+  .team-score {
+    margin-bottom: 0.5em; /* Add space between stacked scores */
+    text-align: center;
+  }
+
+  #board {
+    grid-template-columns: repeat(3, 1fr); /* Reduce columns on smaller screens */
+    gap: 5px;
+  }
+
+  .category-header {
+    font-size: 0.9em; 
+    padding: 5px;
+  }
+
+  .tile {
+    min-height: 60px; /* Reduce tile height */
+    font-size: 1.2em; /* Adjust value font size */
+    padding: 5px;
+  }
+  
+  .tile .question-text {
+    font-size: 0.8em; /* Adjust question text size */
+  }
+
+  .modal-content {
+    width: 90%; /* Allow modal to use more width */
+    padding: 15px;
+  }
+
+  #final-jeopardy-drawer {
+    width: 100%; /* Full width drawer */
+    max-height: 80vh; /* Allow more height */
+  }
+
+  .wager-input-group {
+    flex-direction: column; /* Stack label, input, info */
+    align-items: flex-start; /* Align items to the start */
+    margin-bottom: 1em;
+  }
+
+  .wager-input-group label {
+    margin-bottom: 0.3em;
+  }
+
+  .wager-input-group input[type="number"] {
+    max-width: none; /* Allow input to take full width */
+    width: 100%;
+    margin-bottom: 0.3em;
+  }
+
+  .max-wager-info, .wager-error-message {
+    margin-left: 0; /* Remove left margin when stacked */
+    width: 100%; /* Take full width */
+    text-align: left;
+    margin-bottom: 0.2em;
+  }
+
+  #final-results-display li {
+     padding: 8px;
+     font-size: 1em;
+  }
+}
