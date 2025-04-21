@@ -99,7 +99,7 @@ function loadQuestions() {
       categoryQuestions.push({
         q: pair[0],
         a: pair[1],
-        value: (index + 1) * 100 // Assign value based on index (100, 200, ...)
+        value: (index + 1) * 200 // Assign value based on index (200, 400, ...)
       });
     });
     boardData.push({ category: category, questions: categoryQuestions });
