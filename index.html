@@ -35,12 +35,22 @@
   <!-- Add this Question Modal -->
   <div id="question-modal" class="modal">
     <div class="modal-content question-modal-content">
-      <span class="close-btn" id="close-question-modal">&times;</span>
+      <!-- Official Jeopardy-style Close Button -->
+      <button class="modal-close-btn" id="close-question-modal" aria-label="Close Question Modal">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="#283593" stroke="#FFC107" stroke-width="2"/>
+          <line x1="10" y1="10" x2="22" y2="22" stroke="#FFC107" stroke-width="3" stroke-linecap="round"/>
+          <line x1="22" y1="10" x2="10" y2="22" stroke="#FFC107" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </button>
       <h2 id="question-modal-category">Category</h2>
       <p id="question-modal-value">$Value</p>
       <div id="question-modal-text">Question text appears here...</div>
       <div id="question-timer-display" style="font-size: 1.5em; margin-top: 10px;"></div>
-      <p id="question-modal-answer" style="display: none;">Answer: <span id="question-modal-answer-text"></span></p>
+      <p id="question-modal-answer" style="display: none; flex-direction: column; align-items: flex-start;">
+        <span style="font-weight: bold;">Answer:</span>
+        <span id="question-modal-answer-text"></span>
+      </p>
       <div id="question-modal-teams">
         <!-- Team answer buttons will be generated here -->
       </div>
