@@ -24,6 +24,7 @@ const questionModalAnswerText = document.getElementById('question-modal-answer-t
 const questionModalTeams = document.getElementById('question-modal-teams');
 const closeQuestionModalBtn = document.getElementById('close-question-modal');
 const revealAnswerBtn = document.getElementById('reveal-answer-btn');
+const questionTimerDisplay = document.getElementById('question-timer-display'); // Get timer display element
 
 // --- Game State ---
 let teams = 3;
@@ -42,6 +43,11 @@ let finalJeopardyData = {
 let currentModalQuestion = { // To store context for the active question modal
     catIndex: null, qIndex: null, value: 0, answer: '', tileElement: null
 };
+
+// --- Timer State ---
+let questionTimerId = null;
+let questionTimerIntervalId = null;
+let questionCloseTimerId = null; // Timer for the 5-second delay before closing
 
 // --- New Questions Data Structure --- 
 const newQuestionsData = {
@@ -572,97 +578,198 @@ function resetFinalJeopardy() {
 }
 
 // --- NEW: Question Modal Logic ---
-function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
-  
-  // Store context
-  currentModalQuestion = { catIndex, qIndex, value: questionData.value, answer: questionData.a, tileElement };
+function clearTimers() {
+  if (questionTimerId) {
+    clearTimeout(questionTimerId);
+    questionTimerId = null;
+  }
+  if (questionTimerIntervalId) {
+    clearInterval(questionTimerIntervalId);
+    questionTimerIntervalId = null;
+  }
+  if (questionCloseTimerId) {
+    clearTimeout(questionCloseTimerId);
+    questionCloseTimerId = null;
+  }
+  questionTimerDisplay.textContent = ''; // Clear display
+  questionTimerDisplay.style.display = 'none'; // Hide display
+}
 
-  // Populate Modal
+function startCloseTimer() {
+  clearTimers(); // Clear any existing timers first
+  questionCloseTimerId = setTimeout(() => {
+    closeQuestionModal();
+  }, 5000); // 5 seconds delay
+}
+
+function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
+  console.log(`Opening modal for [${catIndex}, ${qIndex}]`); // Keep console log
+  clearTimers(); // Ensure no previous timers are running
+
+  currentModalQuestion = { // Store context
+    catIndex,
+    qIndex,
+    value: questionData.value,
+    answer: questionData.answer,
+    tileElement
+  };
+
+  // --- Initialize Question Attempt State for this question if needed ---
+  if (!questionAttemptState[catIndex]) {
+    questionAttemptState[catIndex] = [];
+  }
+  if (!questionAttemptState[catIndex][qIndex]) {
+    // Use a Set to store team indices that answered incorrectly
+    questionAttemptState[catIndex][qIndex] = new Set(); 
+    console.log(`Initialized attempt state for [${catIndex}, ${qIndex}]`);
+  }
+  // --- End Initialization ---
+
+  // Populate modal
   questionModalCategory.textContent = boardData[catIndex].category;
   questionModalValue.textContent = `$${questionData.value}`;
-  questionModalText.textContent = questionData.q;
-  questionModalAnswer.style.display = 'none'; // Hide answer initially
-  questionModalAnswerText.textContent = questionData.a;
-  revealAnswerBtn.style.display = 'none'; // Hide reveal button initially
+  questionModalText.textContent = questionData.question;
+  questionModalAnswerText.textContent = questionData.answer; // Set answer but keep it hidden
+  questionModalAnswer.style.display = 'none'; // Ensure answer is hidden initially
+  revealAnswerBtn.style.display = 'block'; // Show reveal button
+  questionModalTeams.style.display = 'block'; // Ensure team buttons container is visible
+  questionModalTeams.innerHTML = ''; // Clear previous team buttons
 
-  // Generate Team Buttons
-  const teamsLockedOut = questionAttemptState[catIndex]?.[qIndex] || new Set(); // Get locked-out teams for this Q
-  let teamButtonsHTML = '';
+  // Create buttons for teams that HAVEN'T answered this question incorrectly yet
+  const missedTeams = questionAttemptState[catIndex][qIndex] || new Set();
+  console.log(`Teams that missed [${catIndex}, ${qIndex}]:`, missedTeams);
   for (let i = 0; i < teams; i++) {
-    const isLockedOut = teamsLockedOut.has(i);
-    const lockedClass = isLockedOut ? 'locked-out' : '';
-    const disabledAttr = isLockedOut ? 'disabled' : ''; // Also disable buttons directly
+    const teamDiv = document.createElement('div');
+    teamDiv.classList.add('team-answer-controls');
+    const isLockedOut = missedTeams.has(i);
+    const disabledAttr = isLockedOut ? 'disabled' : ''; // Add disabled attribute if team missed
 
-    teamButtonsHTML += `
-      <div class="team-answer-group ${lockedClass}" id="modal-team-group-${i}">
-        <span>${teamNames[i]}</span>
-        <div>
-          <button class="question-modal-btn correct" data-team="${i}" data-outcome="correct" ${disabledAttr}>✅</button>
-          <button class="question-modal-btn incorrect" data-team="${i}" data-outcome="incorrect" ${disabledAttr}>❌</button>
-        </div>
-      </div>`;
+    teamDiv.innerHTML = `
+      <span>${teamNames[i] || `Team ${i + 1}`}</span>
+      <button class="correct-btn" data-team="${i}" data-outcome="correct" ${disabledAttr}>✅ Correct</button>
+      <button class="incorrect-btn" data-team="${i}" data-outcome="incorrect" ${disabledAttr}>❌ Incorrect</button>
+    `;
+
+    // Add event listeners only to non-disabled buttons
+    if (!isLockedOut) {
+        teamDiv.querySelector('.correct-btn').addEventListener('click', handleQuestionOutcome);
+        teamDiv.querySelector('.incorrect-btn').addEventListener('click', handleQuestionOutcome);
+    }
+
+    questionModalTeams.appendChild(teamDiv);
   }
-  questionModalTeams.innerHTML = teamButtonsHTML;
-
-  // Add listeners ONLY to buttons that are NOT disabled
-  questionModalTeams.querySelectorAll('.question-modal-btn:not([disabled])').forEach(btn => {
-    btn.addEventListener('click', handleTeamAnswer);
-  });
 
   questionModal.style.display = 'flex'; // Show the modal
+
+  // Start the 20-second timer
+  let timeLeft = 20;
+  questionTimerDisplay.textContent = `Time Left: ${timeLeft}s`;
+  questionTimerDisplay.style.display = 'block'; // Show timer
+
+  questionTimerIntervalId = setInterval(() => {
+    timeLeft--;
+    questionTimerDisplay.textContent = `Time Left: ${timeLeft}s`;
+    if (timeLeft <= 0) {
+       clearInterval(questionTimerIntervalId);
+       // Timer already handled by setTimeout below
+    }
+  }, 1000);
+
+  questionTimerId = setTimeout(() => {
+    console.log(`Timer ran out for [${catIndex}, ${qIndex}]`);
+    handleTimerEnd();
+  }, 20000); // 20 seconds
 }
 
 function closeQuestionModal() {
+  console.log("Closing question modal");
+  clearTimers(); // Crucial: Clear ALL timers when modal is closed
   questionModal.style.display = 'none';
+  // Reset modal content if needed, or leave it for debugging
+  questionModalText.textContent = '';
+  questionModalAnswerText.textContent = '';
+  questionModalTeams.innerHTML = ''; 
+  currentModalQuestion = { catIndex: null, qIndex: null, value: 0, answer: '', tileElement: null }; // Clear context
 }
 
 function revealModalAnswer() {
-  questionModalAnswer.style.display = 'block'; // Keep this simple - just show answer
-  // Button disabling is handled by locked-out state check in openQuestionModal
-  // OR during the brief moment before modal closes on correct answer
-  questionModalTeams.querySelectorAll('.question-modal-btn').forEach(btn => btn.disabled = true);
+  console.log("Revealing modal answer");
+  questionModalAnswer.style.display = 'block'; // Show the answer section
+  revealAnswerBtn.style.display = 'none'; // Hide the reveal button itself
+  questionModalTeams.style.display = 'none'; // Hide team buttons when answer is shown
 }
 
-// --- NEW: Handle Team Answer Click in Modal ---
-function handleTeamAnswer(event) {
-  const button = event.currentTarget;
-  const teamIndex = parseInt(button.dataset.team);
+function handleTimerEnd() {
+    clearTimers(); // Stop the countdown interval
+    console.log("Timer ended. Revealing answer and closing soon.");
+    questionTimerDisplay.textContent = "Time's Up!";
+    revealModalAnswer();
+    // Mark tile as unanswered/timed out (using existing 'incorrect' logic for now)
+    // Check if tileElement exists before marking
+    if (currentModalQuestion.tileElement) {
+        markTileAnswered(currentModalQuestion.tileElement, false); // Mark as incorrect visually
+    }
+    // Set 5-second timer to close the modal
+    startCloseTimer();
+}
+
+// Event handler for Correct/Incorrect buttons in the modal
+function handleQuestionOutcome(event) {
+  clearTimers(); // Stop the main timer and interval as soon as an answer is given
+
+  const button = event.target;
+  const teamIndex = parseInt(button.dataset.team, 10);
   const outcome = button.dataset.outcome;
   const value = currentModalQuestion.value;
   const { catIndex, qIndex, tileElement } = currentModalQuestion; // Get context
 
+  console.log(`Handling outcome for Team ${teamIndex}: ${outcome}`); // Keep log
+
   let delta = 0;
   if (outcome === 'correct') {
     delta = value;
-    // Mark tile as answered correctly
-    markTileAnswered(tileElement, true);
+    revealModalAnswer(); // Reveal answer immediately
+    markTileAnswered(tileElement, true); // Mark tile as answered correctly
+
     // Optional: Clear attempt state for this now-answered question
     if (questionAttemptState[catIndex]?.[qIndex]) {
-      questionAttemptState[catIndex][qIndex].clear();
+      questionAttemptState[catIndex][qIndex].clear(); // No more attempts needed
     }
-  } else {
+    updateScore(teamIndex, delta, tileElement, true); // Update score
+    startCloseTimer(); // Start 5-second timer to close modal
+
+  } else { // Incorrect outcome
     delta = -value;
-    // Incorrect: Record that this team missed this specific question
+    // Record that this team missed this specific question
     if (questionAttemptState[catIndex]?.[qIndex]) {
       questionAttemptState[catIndex][qIndex].add(teamIndex);
+      console.log(`Team ${teamIndex} missed [${catIndex}, ${qIndex}]. Current misses:`, questionAttemptState[catIndex][qIndex]);
 
-      // ---> CHECK: Have all teams missed this question now? <--- 
+      // Update score immediately for the incorrect answer
+      updateScore(teamIndex, delta, tileElement, false);
+
+      // Check if ALL teams have now missed this question
       if (questionAttemptState[catIndex][qIndex].size === teams) {
-        console.log(`All teams missed [${catIndex}, ${qIndex}]. Marking tile.`);
-        markTileAnswered(tileElement, false); // Mark tile as incorrect (❌)
+        console.log(`All teams missed [${catIndex}, ${qIndex}]. Revealing answer, closing soon.`);
+        revealModalAnswer(); // Reveal answer as all teams missed
+        markTileAnswered(tileElement, false); // Mark tile as incorrect (all missed)
+        startCloseTimer(); // Start 5-second timer to close modal
+      } else {
+        // Not all teams have missed yet. Disable buttons instead of hiding parent.
+        const correctButton = button.parentElement.querySelector('.correct-btn');
+        const incorrectButton = button.parentElement.querySelector('.incorrect-btn');
+        if (correctButton) correctButton.disabled = true;
+        if (incorrectButton) incorrectButton.disabled = true;
+        console.log(`Team ${teamIndex} missed, buttons disabled. Others can still answer.`);
+        // DO NOT close modal here, let timer run or other teams answer.
       }
-      // ---> END CHECK <--- 
     } else {
       console.error(`Could not record incorrect attempt for [${catIndex}, ${qIndex}] team ${teamIndex}`); // Keep error log
+      // Still update score even if state recording failed
+      updateScore(teamIndex, delta, tileElement, false);
+      // Don't close modal here either, likely an edge case
     }
-    // Do NOT mark the tile here UNLESS all teams missed (handled above)
   }
-
-  // Update score using the modified function
-  updateScore(teamIndex, delta, tileElement, outcome === 'correct'); 
-
-  // ALWAYS close modal immediately
-  closeQuestionModal();
 }
 
 // --- Utility Functions ---
@@ -732,5 +839,10 @@ window.onload = () => {
   });
 
   closeQuestionModalBtn.addEventListener('click', closeQuestionModal); // Listener for new modal's close button
-  revealAnswerBtn.addEventListener('click', revealModalAnswer); // Listener for reveal button
+  revealAnswerBtn.addEventListener('click', () => {
+      console.log("Manual reveal clicked");
+      clearTimers(); // Stop countdown
+      revealModalAnswer();
+      startCloseTimer(); // Start 5s close timer on manual reveal too
+  }); 
 };
