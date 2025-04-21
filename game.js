@@ -610,7 +610,7 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
     catIndex,
     qIndex,
     value: questionData.value,
-    answer: questionData.answer,
+    answer: questionData.a,
     tileElement
   };
 
@@ -660,8 +660,9 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
   }
 
   // Set answer text *after* team buttons are potentially manipulated
-  console.log(`Setting answer text in openQuestionModal: '${questionData.answer}'`); // Log answer data here
-  questionModalAnswerText.textContent = questionData.answer;
+  console.log('openQuestionModal questionData:', questionData); // DEBUG: Log question data
+  console.log(`Setting answer text in openQuestionModal: '${questionData.a}'`); // Log answer data here
+  questionModalAnswerText.textContent = questionData.a;
 
   questionModal.style.display = 'flex'; // Show the modal
 
@@ -696,6 +697,7 @@ function closeQuestionModal() {
 }
 
 function revealModalAnswer() {
+  console.log('Reveal button clicked'); // DEBUG: Reveal button was clicked
   console.log("Revealing modal answer");
   // --- Add logging ---
   const answerP = document.getElementById('question-modal-answer');
