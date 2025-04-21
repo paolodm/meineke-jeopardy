@@ -628,10 +628,10 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
   // Populate modal
   questionModalCategory.textContent = boardData[catIndex].category;
   questionModalValue.textContent = `$${questionData.value}`;
-  questionModalText.textContent = questionData.question;
-  questionModalAnswerText.textContent = questionData.answer; // Set answer but keep it hidden
+  // FIX: Use correct property for question text
+  questionModalText.textContent = questionData.q || questionData.question;
   questionModalAnswer.style.display = 'none'; // Ensure answer is hidden initially
-  revealAnswerBtn.style.display = 'block'; // Show reveal button
+  revealAnswerBtn.style.display = 'block'; // Show the reveal button
   questionModalTeams.style.display = 'block'; // Ensure team buttons container is visible
   questionModalTeams.innerHTML = ''; // Clear previous team buttons
 
@@ -658,6 +658,10 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
 
     questionModalTeams.appendChild(teamDiv);
   }
+
+  // Set answer text *after* team buttons are potentially manipulated
+  console.log(`Setting answer text in openQuestionModal: '${questionData.answer}'`); // Log answer data here
+  questionModalAnswerText.textContent = questionData.answer;
 
   questionModal.style.display = 'flex'; // Show the modal
 
@@ -687,14 +691,19 @@ function closeQuestionModal() {
   questionModal.style.display = 'none';
   // Reset modal content if needed, or leave it for debugging
   questionModalText.textContent = '';
-  questionModalAnswerText.textContent = '';
   questionModalTeams.innerHTML = ''; 
   currentModalQuestion = { catIndex: null, qIndex: null, value: 0, answer: '', tileElement: null }; // Clear context
 }
 
 function revealModalAnswer() {
   console.log("Revealing modal answer");
-  questionModalAnswer.style.display = 'block'; // Show the answer section
+  // --- Add logging ---
+  const answerP = document.getElementById('question-modal-answer');
+  const answerSpan = document.getElementById('question-modal-answer-text');
+  console.log("Answer <p> current display:", window.getComputedStyle(answerP).display);
+  console.log("Answer <span> current textContent:", answerSpan.textContent);
+  // --- End logging ---
+  questionModalAnswer.style.display = 'block'; // Show the answer section (the <p> tag)
   revealAnswerBtn.style.display = 'none'; // Hide the reveal button itself
   questionModalTeams.style.display = 'none'; // Hide team buttons when answer is shown
 }
