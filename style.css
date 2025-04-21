@@ -183,6 +183,10 @@ button#audio-toggle {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
+#question-modal {
+  display: none;
+}
+
 #final-jeopardy {
   margin-top: 2em;
   padding: 1.5em;
@@ -347,6 +351,106 @@ input.invalid-wager {
 
 /* --- End Final Results Styling --- */
 
+/* --- Question Modal Styles --- */
+.question-modal-content {
+  min-width: 300px; /* Ensure a minimum width */
+  max-width: 600px; /* Limit max width */
+}
+
+#question-modal-category {
+  margin-top: 0;
+  color: #ffcc00; /* Meineke Gold */
+  margin-bottom: 5px;
+}
+
+#question-modal-value {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+#question-modal-text {
+  font-size: 1.1em;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+#question-modal-teams {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px; /* Space between team button groups */
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.team-answer-group {
+  display: flex;
+  flex-direction: column; /* Stack team name and buttons */
+  align-items: center;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  min-width: 100px;
+}
+
+.team-answer-group span {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Style for the correct/incorrect buttons */
+.question-modal-btn {
+  padding: 5px 10px;
+  margin: 2px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.question-modal-btn.correct {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  border-color: #388E3C;
+}
+
+.question-modal-btn.incorrect {
+  background-color: #f44336; /* Red */
+  color: white;
+  border-color: #d32f2f;
+}
+
+#question-modal-answer {
+  margin-top: 15px;
+  font-weight: bold;
+  background-color: #eee;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* Style for teams locked out of a specific question in the modal */
+.team-answer-group.locked-out {
+  opacity: 0.4;
+  background-color: #e0e0e0; /* Slightly darker gray */
+  pointer-events: none; /* Prevent clicks on the group */
+  border: 1px dashed #999; /* Optional: visual cue */
+  border-radius: 4px; /* Match other elements */
+}
+
+.team-answer-group.locked-out span {
+  text-decoration: line-through; /* Optional: strike through name */
+  color: #777;
+}
+
+/* Ensure buttons inside are also visually disabled */
+.team-answer-group.locked-out .question-modal-btn {
+  cursor: not-allowed;
+  background-color: #ccc; /* Gray out buttons */
+  border-color: #bbb;
+}
+
+/* --- End Question Modal Styles --- */
+
 /* Responsive adjustments */
 @media (max-width: 800px) {
   h1 { font-size: 1.5em; }
@@ -434,5 +538,21 @@ input.invalid-wager {
   #final-results-display li {
      padding: 8px;
      font-size: 1em;
+  }
+
+  .question-modal-content {
+    width: 90%; /* More width on mobile */
+    max-width: none;
+  }
+
+  #question-modal-teams {
+      justify-content: space-around; /* Better spacing on mobile */
+  }
+
+   .team-answer-group {
+      min-width: 80px; /* Slightly smaller buttons */
+  }
+   .question-modal-btn {
+      padding: 4px 8px;
   }
 }

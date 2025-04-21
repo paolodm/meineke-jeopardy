@@ -12,7 +12,18 @@ const themeAudio = document.getElementById('theme-audio');
 const finalBtn = document.getElementById('final-btn');
 const finalSection = document.getElementById('final-jeopardy'); 
 const finalDrawer = document.getElementById('final-jeopardy-drawer'); 
-const closeFinalBtn = document.getElementById('close-final-btn'); 
+const closeFinalBtn = document.getElementById('close-final-btn');
+
+// --- NEW: Question Modal Elements ---
+const questionModal = document.getElementById('question-modal');
+const questionModalCategory = document.getElementById('question-modal-category');
+const questionModalValue = document.getElementById('question-modal-value');
+const questionModalText = document.getElementById('question-modal-text');
+const questionModalAnswer = document.getElementById('question-modal-answer');
+const questionModalAnswerText = document.getElementById('question-modal-answer-text');
+const questionModalTeams = document.getElementById('question-modal-teams');
+const closeQuestionModalBtn = document.getElementById('close-question-modal');
+const revealAnswerBtn = document.getElementById('reveal-answer-btn');
 
 // --- Game State ---
 let teams = 3;
@@ -20,12 +31,16 @@ let scores = [];
 let teamNames = [];
 let boardData = []; 
 let boardState = []; 
+let questionAttemptState = []; // Tracks teams who missed specific questions
 let audioMuted = true;
 let finalJeopardyData = { 
     question: "What is the most important part of customer service?",
     answer: "The customer!",
     wagers: [],
     outcomes: [] 
+};
+let currentModalQuestion = { // To store context for the active question modal
+    catIndex: null, qIndex: null, value: 0, answer: '', tileElement: null
 };
 
 // --- New Questions Data Structure --- 
@@ -133,7 +148,10 @@ function renderScoreboard() {
 function setupBoard() {
   board.innerHTML = '';
   loadQuestions(); 
-  boardState = Array(5).fill().map(() => Array(5).fill('hidden'));
+  boardState = Array(boardData.length).fill(0).map(() => Array(boardData[0].questions.length).fill(false));
+  questionAttemptState = Array(boardData.length).fill(null).map(
+      () => Array(boardData[0].questions.length).fill(null).map(() => new Set())
+  );
 
   for (let c = 0; c < 5; c++) {
     const catTile = document.createElement('div');
@@ -155,13 +173,20 @@ function setupBoard() {
       tile.setAttribute('aria-label', `${boardData[c].category} for $${questionData.value}`);
       tile.setAttribute('data-row', r);
       tile.setAttribute('data-col', c);
+      tile.setAttribute('data-cat', c); // Add data-cat attribute
+      tile.setAttribute('data-q', r); // Add data-q attribute
 
-      tile.addEventListener('click', handleTileClick);
-      tile.addEventListener('keydown', handleTileKeydown);
       board.appendChild(tile);
     }
   }
   finalDrawer.classList.remove('drawer-open'); 
+
+  // Add event listeners AFTER board HTML is set
+  board.querySelectorAll('.tile:not(.category-header)').forEach(tile => {
+    tile.addEventListener('click', handleTileClick);
+    // Add keydown listener for accessibility if needed
+    // tile.addEventListener('keydown', handleTileKeydown);
+  });
 }
 
 // --- Event Handlers ---
@@ -182,10 +207,26 @@ function handleNameEditKey(event) {
 }
 
 function handleTileClick(event) {
-  const tile = event.target;
-  const r = parseInt(tile.getAttribute('data-row'), 10);
-  const c = parseInt(tile.getAttribute('data-col'), 10);
-  flipTile(r, c, tile);
+  const tile = event.currentTarget;
+  if (tile.classList.contains('answered') || tile.classList.contains('category-header')) return;
+
+  const catIndex = parseInt(tile.dataset.cat);
+  const qIndex = parseInt(tile.dataset.q);
+
+  // Check if indices are valid *before* accessing deeply
+  if (catIndex === undefined || qIndex === undefined || isNaN(catIndex) || isNaN(qIndex) || catIndex < 0 || catIndex >= boardData.length || !boardData[catIndex]) {
+      console.error("Invalid indices or boardData structure in handleTileClick:", { catIndex, qIndex, boardData }); // Keep error log
+      // Optionally check qIndex bounds if catIndex is valid:
+      // if (boardData[catIndex] && (qIndex < 0 || qIndex >= boardData[catIndex].questions.length)) {
+      //    console.error("Invalid qIndex:", { catIndex, qIndex, categoryQuestions: boardData[catIndex].questions });
+      // }
+      return; // Stop execution if indices are bad
+  }
+
+  const questionData = boardData[catIndex].questions[qIndex];
+
+  // Instead of revealing on tile, open the modal
+  openQuestionModal(catIndex, qIndex, questionData, tile);
 }
 
 function handleTileKeydown(event) {
@@ -256,13 +297,6 @@ function flipTile(r, c, tileElement) {
 function updateScore(teamIndex, delta, tileElement, isCorrect) {
   scores[teamIndex] += delta;
   document.getElementById(`score-${teamIndex}`).textContent = scores[teamIndex];
-
-  const buttonWrappers = tileElement.querySelectorAll('.team-answer-btns');
-  buttonWrappers.forEach(wrapper => wrapper.remove());
-
-  const answerText = boardData[parseInt(tileElement.dataset.col)].questions[parseInt(tileElement.dataset.row)].a;
-  tileElement.innerHTML = isCorrect ? '✅ Correct!' : '❌ Incorrect!';
-  tileElement.setAttribute('aria-label', `Scored ${isCorrect ? 'correct' : 'incorrect'} for ${teamNames[teamIndex]}. Final answer was ${answerText}`);
 
   playSfx(isCorrect ? 'correct' : 'wrong');
 }
@@ -537,6 +571,124 @@ function resetFinalJeopardy() {
   console.log("Final Jeopardy section reset.");
 }
 
+// --- NEW: Question Modal Logic ---
+function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
+  
+  // Store context
+  currentModalQuestion = { catIndex, qIndex, value: questionData.value, answer: questionData.a, tileElement };
+
+  // Populate Modal
+  questionModalCategory.textContent = boardData[catIndex].category;
+  questionModalValue.textContent = `$${questionData.value}`;
+  questionModalText.textContent = questionData.q;
+  questionModalAnswer.style.display = 'none'; // Hide answer initially
+  questionModalAnswerText.textContent = questionData.a;
+  revealAnswerBtn.style.display = 'none'; // Hide reveal button initially
+
+  // Generate Team Buttons
+  const teamsLockedOut = questionAttemptState[catIndex]?.[qIndex] || new Set(); // Get locked-out teams for this Q
+  let teamButtonsHTML = '';
+  for (let i = 0; i < teams; i++) {
+    const isLockedOut = teamsLockedOut.has(i);
+    const lockedClass = isLockedOut ? 'locked-out' : '';
+    const disabledAttr = isLockedOut ? 'disabled' : ''; // Also disable buttons directly
+
+    teamButtonsHTML += `
+      <div class="team-answer-group ${lockedClass}" id="modal-team-group-${i}">
+        <span>${teamNames[i]}</span>
+        <div>
+          <button class="question-modal-btn correct" data-team="${i}" data-outcome="correct" ${disabledAttr}>✅</button>
+          <button class="question-modal-btn incorrect" data-team="${i}" data-outcome="incorrect" ${disabledAttr}>❌</button>
+        </div>
+      </div>`;
+  }
+  questionModalTeams.innerHTML = teamButtonsHTML;
+
+  // Add listeners ONLY to buttons that are NOT disabled
+  questionModalTeams.querySelectorAll('.question-modal-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', handleTeamAnswer);
+  });
+
+  questionModal.style.display = 'flex'; // Show the modal
+}
+
+function closeQuestionModal() {
+  questionModal.style.display = 'none';
+}
+
+function revealModalAnswer() {
+  questionModalAnswer.style.display = 'block'; // Keep this simple - just show answer
+  // Button disabling is handled by locked-out state check in openQuestionModal
+  // OR during the brief moment before modal closes on correct answer
+  questionModalTeams.querySelectorAll('.question-modal-btn').forEach(btn => btn.disabled = true);
+}
+
+// --- NEW: Handle Team Answer Click in Modal ---
+function handleTeamAnswer(event) {
+  const button = event.currentTarget;
+  const teamIndex = parseInt(button.dataset.team);
+  const outcome = button.dataset.outcome;
+  const value = currentModalQuestion.value;
+  const { catIndex, qIndex, tileElement } = currentModalQuestion; // Get context
+
+  let delta = 0;
+  if (outcome === 'correct') {
+    delta = value;
+    // Mark tile as answered correctly
+    markTileAnswered(tileElement, true);
+    // Optional: Clear attempt state for this now-answered question
+    if (questionAttemptState[catIndex]?.[qIndex]) {
+      questionAttemptState[catIndex][qIndex].clear();
+    }
+  } else {
+    delta = -value;
+    // Incorrect: Record that this team missed this specific question
+    if (questionAttemptState[catIndex]?.[qIndex]) {
+      questionAttemptState[catIndex][qIndex].add(teamIndex);
+
+      // ---> CHECK: Have all teams missed this question now? <--- 
+      if (questionAttemptState[catIndex][qIndex].size === teams) {
+        console.log(`All teams missed [${catIndex}, ${qIndex}]. Marking tile.`);
+        markTileAnswered(tileElement, false); // Mark tile as incorrect (❌)
+      }
+      // ---> END CHECK <--- 
+    } else {
+      console.error(`Could not record incorrect attempt for [${catIndex}, ${qIndex}] team ${teamIndex}`); // Keep error log
+    }
+    // Do NOT mark the tile here UNLESS all teams missed (handled above)
+  }
+
+  // Update score using the modified function
+  updateScore(teamIndex, delta, tileElement, outcome === 'correct'); 
+
+  // ALWAYS close modal immediately
+  closeQuestionModal();
+}
+
+// --- Utility Functions ---
+function markTileAnswered(tileElement, gotCorrect) {
+  if (!tileElement || tileElement.classList.contains('answered')) return; // Prevent double marking
+
+  tileElement.classList.add('answered');
+  // Ensure currentModalQuestion has valid indices before updating state
+  if (currentModalQuestion.catIndex !== null && currentModalQuestion.qIndex !== null) {
+    // Check if boardState[catIndex] exists before trying to access index qIndex
+    if (boardState[currentModalQuestion.catIndex]) {
+      boardState[currentModalQuestion.catIndex][currentModalQuestion.qIndex] = true; // Update state
+    } else {
+      console.error(`Attempted to mark tile in invalid category index: ${currentModalQuestion.catIndex}`);
+    }
+  }
+
+  if (gotCorrect) {
+    tileElement.innerHTML = '✅'; // Simpler feedback
+    tileElement.classList.add('answered-correctly-tile'); // Add specific class for correct
+  } else {
+    tileElement.innerHTML = '❌'; // Simpler feedback
+    tileElement.classList.add('answered-incorrectly-tile'); // Add specific class for incorrect
+  }
+}
+
 // --- Initial Load ---
 window.onload = () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -578,4 +730,7 @@ window.onload = () => {
     console.log("Close Final Jeopardy Drawer clicked.");
     finalDrawer.classList.remove('drawer-open');
   });
+
+  closeQuestionModalBtn.addEventListener('click', closeQuestionModal); // Listener for new modal's close button
+  revealAnswerBtn.addEventListener('click', revealModalAnswer); // Listener for reveal button
 };

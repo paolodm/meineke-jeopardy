@@ -32,6 +32,20 @@
     <button id="final-btn">Play Final Jeopardy</button>
   </footer>
   <audio id="theme-audio" src="audio/jeopardy.mp3" loop></audio>
+  <!-- Add this Question Modal -->
+  <div id="question-modal" class="modal">
+    <div class="modal-content question-modal-content">
+      <span class="close-btn" id="close-question-modal">&times;</span>
+      <h2 id="question-modal-category">Category</h2>
+      <p id="question-modal-value">$Value</p>
+      <p id="question-modal-text">Question text goes here...</p>
+      <p id="question-modal-answer" style="display: none;">Answer: <span id="question-modal-answer-text"></span></p>
+      <div id="question-modal-teams">
+        <!-- Team answer buttons will be generated here -->
+      </div>
+      <button id="reveal-answer-btn" style="display: none; margin-top: 10px;">Reveal Answer</button>
+    </div>
+  </div>
   <script src="game.js"></script>
 </body>
 </html>
