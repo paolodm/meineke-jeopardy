@@ -666,8 +666,8 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
 
   questionModal.style.display = 'flex'; // Show the modal
 
-  // Start the 20-second timer
-  let timeLeft = 20;
+  // Start the 30-second timer
+  let timeLeft = 30;
   questionTimerDisplay.textContent = `Time Left: ${timeLeft}s`;
   questionTimerDisplay.style.display = 'block'; // Show timer
 
@@ -683,7 +683,7 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
   questionTimerId = setTimeout(() => {
     console.log(`Timer ran out for [${catIndex}, ${qIndex}]`);
     handleTimerEnd();
-  }, 20000); // 20 seconds
+  }, 30000); // 30 seconds
 }
 
 function closeQuestionModal() {
