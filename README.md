@@ -39,7 +39,9 @@ That’s it — the game runs entirely in your browser.
 
 ### Pull Request Previews
 
-Every pull request against `main` automatically publishes a preview build via GitHub Pages. Open the PR page and look for the **Deploy preview** link in the checks section to launch the branch in your browser before merging.
+Every pull request against `main` automatically publishes a preview build via GitHub Pages. Open the PR page and look for the **Deploy preview** link in the checks section (under **Deployments**) to launch the branch in your browser before merging.
+
+> **Setup tip:** In **Settings → Pages**, ensure “Allow GitHub Pages to deploy from GitHub Actions on pull requests” is enabled so branch builds can publish previews.
 
 ---
 
