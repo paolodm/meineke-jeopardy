@@ -208,8 +208,11 @@ function setupBoard() {
   board.innerHTML = '';
   loadQuestions();
   if (!boardData.length) {
+    board.style.removeProperty('grid-template-columns');
     return;
   }
+
+  board.style.gridTemplateColumns = `repeat(${boardData.length}, 1fr)`;
 
   boardState = boardData.map(category => category.questions.map(() => false));
   questionAttemptState = boardData.map(category =>
