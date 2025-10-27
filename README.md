@@ -34,8 +34,12 @@ That’s it — the game runs entirely in your browser.
 ### Hosting on GitHub Pages
 
 1. Push to a public repository.  
-2. In **Settings → Pages**, select the `main` branch and `/root` folder.  
+2. In **Settings → Pages**, select the `main` branch and `/root` folder.
 3. Share the generated URL (e.g. `https://your‑org.github.io/meineke‑jeopardy`).
+
+### Pull Request Previews
+
+Every pull request against `main` automatically publishes a preview build via GitHub Pages. Open the PR page and look for the **Deploy preview** link in the checks section to launch the branch in your browser before merging.
 
 ---
 
