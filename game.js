@@ -694,8 +694,8 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
   // FIX: Use correct property for question text
   questionModalText.textContent = questionData.q || questionData.question;
   questionModalAnswer.style.display = 'none'; // Ensure answer is hidden initially
-  revealAnswerBtn.style.display = 'block'; // Show the reveal button
-  questionModalTeams.style.display = 'block'; // Ensure team buttons container is visible
+  revealAnswerBtn.style.display = 'inline-flex'; // Show the reveal button
+  questionModalTeams.style.display = 'flex'; // Ensure team buttons container is visible
   questionModalTeams.innerHTML = ''; // Clear previous team buttons
 
   // Create buttons for teams that HAVEN'T answered this question incorrectly yet
@@ -712,6 +712,10 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
       <button class="correct-btn" data-team="${i}" data-outcome="correct" ${disabledAttr}>✅ Correct</button>
       <button class="incorrect-btn" data-team="${i}" data-outcome="incorrect" ${disabledAttr}>❌ Incorrect</button>
     `;
+
+    if (isLockedOut) {
+      teamDiv.classList.add('locked-out');
+    }
 
     // Add event listeners only to non-disabled buttons
     if (!isLockedOut) {
@@ -768,7 +772,7 @@ function revealModalAnswer() {
   console.log("Answer <p> current display:", window.getComputedStyle(answerP).display);
   console.log("Answer <span> current textContent:", answerSpan.textContent);
   // --- End logging ---
-  questionModalAnswer.style.display = 'block'; // Show the answer section (the <p> tag)
+  questionModalAnswer.style.display = 'flex'; // Show the answer section (the <p> tag)
   revealAnswerBtn.style.display = 'none'; // Hide the reveal button itself
   questionModalTeams.style.display = 'none'; // Hide team buttons when answer is shown
 }
@@ -834,6 +838,7 @@ function handleQuestionOutcome(event) {
         const incorrectButton = button.parentElement.querySelector('.incorrect-btn');
         if (correctButton) correctButton.disabled = true;
         if (incorrectButton) incorrectButton.disabled = true;
+        button.parentElement.classList.add('locked-out');
         console.log(`Team ${teamIndex} missed, buttons disabled. Others can still answer.`);
         // DO NOT close modal here, let timer run or other teams answer.
       }

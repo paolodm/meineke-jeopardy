@@ -175,6 +175,7 @@ button#audio-toggle {
 }
 
 .modal-content {
+  position: relative;
   background: #fff;
   color: #222;
   padding: 2em 3em;
@@ -353,8 +354,15 @@ input.invalid-wager {
 
 /* --- Question Modal Styles --- */
 .question-modal-content {
-  min-width: 300px; /* Ensure a minimum width */
-  max-width: 600px; /* Limit max width */
+  min-width: 320px; /* Ensure a minimum width */
+  max-width: 640px; /* Limit max width */
+  width: 90vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #303f9f 100%);
+  color: #fff;
+  border: 3px solid #ffc107;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
 #question-modal-category {
@@ -368,12 +376,14 @@ input.invalid-wager {
   font-weight: bold;
   margin-top: 0;
   margin-bottom: 15px;
+  color: #ffe082;
 }
 
 #question-modal-text {
   font-size: 1.1em;
   line-height: 1.4;
   margin-bottom: 20px;
+  color: #e8eaf6;
 }
 
 #question-modal-teams {
@@ -381,72 +391,109 @@ input.invalid-wager {
   flex-wrap: wrap;
   gap: 10px; /* Space between team button groups */
   justify-content: center;
+  align-items: stretch;
   margin-bottom: 15px;
 }
 
-.team-answer-group {
-  display: flex;
-  flex-direction: column; /* Stack team name and buttons */
-  align-items: center;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  min-width: 100px;
+#reveal-answer-btn {
+  align-self: center;
+  background-color: #ffc107;
+  color: #1a237e;
+  border-radius: 999px;
+  padding: 0.6em 1.8em;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.team-answer-group span {
-  font-weight: bold;
-  margin-bottom: 5px;
+#reveal-answer-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.team-answer-controls {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  padding: 0.75em 0.85em;
+  min-width: 160px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-answer-controls:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.team-answer-controls span {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 /* Style for the correct/incorrect buttons */
-.question-modal-btn {
-  padding: 5px 10px;
-  margin: 2px;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.team-answer-controls button {
+  width: 100%;
+  margin: 0;
+  padding: 0.55em 0.75em;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: #1a237e;
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
-.question-modal-btn.correct {
-  background-color: #4CAF50; /* Green */
-  color: white;
-  border-color: #388E3C;
+.team-answer-controls button.correct-btn {
+  background-color: rgba(76, 175, 80, 0.9);
+  color: #fff;
 }
 
-.question-modal-btn.incorrect {
-  background-color: #f44336; /* Red */
-  color: white;
-  border-color: #d32f2f;
+.team-answer-controls button.incorrect-btn {
+  background-color: rgba(244, 67, 54, 0.9);
+  color: #fff;
+}
+
+.team-answer-controls button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 #question-modal-answer {
-  margin-top: 15px;
+  margin-top: 18px;
   font-weight: bold;
-  background-color: #eee;
-  padding: 10px;
-  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+#question-modal-answer span:first-child {
+  color: #ffc107;
+  text-transform: uppercase;
+  font-size: 0.9em;
+  letter-spacing: 1px;
 }
 
 /* Style for teams locked out of a specific question in the modal */
-.team-answer-group.locked-out {
-  opacity: 0.4;
-  background-color: #e0e0e0; /* Slightly darker gray */
+.team-answer-controls.locked-out {
+  opacity: 0.35;
+  background-color: rgba(158, 158, 158, 0.35);
   pointer-events: none; /* Prevent clicks on the group */
-  border: 1px dashed #999; /* Optional: visual cue */
-  border-radius: 4px; /* Match other elements */
+  border-style: dashed;
 }
 
-.team-answer-group.locked-out span {
+.team-answer-controls.locked-out span {
   text-decoration: line-through; /* Optional: strike through name */
-  color: #777;
-}
-
-/* Ensure buttons inside are also visually disabled */
-.team-answer-group.locked-out .question-modal-btn {
-  cursor: not-allowed;
-  background-color: #ccc; /* Gray out buttons */
-  border-color: #bbb;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* --- NEW: Style for disabled answer buttons --- */
@@ -580,10 +627,10 @@ input.invalid-wager {
       justify-content: space-around; /* Better spacing on mobile */
   }
 
-   .team-answer-group {
-      min-width: 80px; /* Slightly smaller buttons */
+   .team-answer-controls {
+      min-width: 120px; /* Slightly smaller buttons */
   }
-   .question-modal-btn {
-      padding: 4px 8px;
+   .team-answer-controls button {
+      padding: 0.45em 0.6em;
   }
 }
