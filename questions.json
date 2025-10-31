@@ -1,52 +1,42 @@
 [
   {
-    "category": "Brakes",
+    "category": "Meineke Services",
     "questions": [
-      {"q": "What does ABS stand for?", "a": "Anti-lock Braking System", "value": 100},
-      {"q": "Which fluid do brakes use?", "a": "Brake fluid", "value": 200},
-      {"q": "What part presses brake pads?", "a": "Caliper", "value": 300},
-      {"q": "Rotor is part of which system?", "a": "Braking system", "value": 400},
-      {"q": "What wears down with use?", "a": "Brake pads", "value": 500}
+      {"q": "This is the routine service Meineke offers to keep your engine lubricated and running smoothly.", "a": "What is an oil change?", "value": 100},
+      {"q": "If your car squeals when stopping, Meineke can inspect and replace these essential safety components.", "a": "What are brake pads?", "value": 200},
+      {"q": "Meineke provides this service to ensure your wheels are properly angled for even tire wear and straight driving.", "a": "What is a wheel alignment?", "value": 300},
+      {"q": "Meineke technicians can diagnose and repair this system that keeps you cool in summer and defrosts your windows in winter.", "a": "What is the air conditioning (A/C) system?", "value": 400},
+      {"q": "Meineke’s signature service package combines inspections and maintenance across multiple systems, including fluids, filters, and tire pressure, to keep your vehicle running efficiently.", "a": "What is the Meineke Total Car Care Inspection?", "value": 500}
     ]
   },
   {
-    "category": "Oil",
+    "category": "Car Care Know-How",
     "questions": [
-      {"q": "What does 5W-30 mean?", "a": "Viscosity rating", "value": 100},
-      {"q": "When to change oil?", "a": "Every 3,000-5,000 miles", "value": 200},
-      {"q": "What catches debris?", "a": "Oil filter", "value": 300},
-      {"q": "What’s synthetic oil?", "a": "Engineered lubricant", "value": 400},
-      {"q": "What’s the dipstick for?", "a": "Checking oil level", "value": 500}
+      {"q": "This dashboard light, shaped like a little oil can, means it’s time to check this crucial fluid level.", "a": "What is the engine oil?", "value": 100},
+      {"q": "You should rotate these every 5,000 to 7,500 miles to promote even wear and extend their life.", "a": "What are tires?", "value": 200},
+      {"q": "To prevent your car from overheating, regularly check this liquid that circulates through the radiator.", "a": "What is coolant (or antifreeze)?", "value": 300},
+      {"q": "When your steering wheel vibrates at high speeds, it might be time to have these balanced.", "a": "What are the tires (or wheels)?", "value": 400},
+      {"q": "This system uses belts, pulleys, and tensioners to synchronize the crankshaft and camshaft—if it fails, major engine damage can occur.", "a": "What is the timing belt (or timing chain) system?", "value": 500}
     ]
   },
   {
-    "category": "Tires",
+    "category": "Auto Parts & Tariffs",
     "questions": [
-      {"q": "What’s PSI?", "a": "Pounds per square inch", "value": 100},
-      {"q": "How to check tread?", "a": "Penny test", "value": 200},
-      {"q": "What’s wheel alignment?", "a": "Adjusting angles", "value": 300},
-      {"q": "What’s TPMS?", "a": "Tire Pressure Monitoring System", "value": 400},
-      {"q": "What’s a lug nut?", "a": "Fastener for wheel", "value": 500}
+      {"q": "This part, found under the hood, starts your car’s engine with a spark of electrical energy.", "a": "What is the battery?", "value": 100},
+      {"q": "These components, filled with air and rubber, are often imported and can be affected by trade tariffs on foreign-made products.", "a": "What are tires?", "value": 200},
+      {"q": "The metal duties known as tariffs are placed on imported goods — like brake rotors or exhaust systems — to protect this type of domestic industry.", "a": "What is the automotive manufacturing industry?", "value": 300},
+      {"q": "A trade tariff raising prices on imported catalytic converters might increase repair costs for this part of your vehicle, which controls emissions.", "a": "What is the exhaust system?", "value": 400},
+      {"q": "When tariffs increase the cost of imported steel and aluminum, it directly impacts the price of this large, protective car component that forms the vehicle’s outer structure.", "a": "What is the car body (or chassis)?", "value": 500}
     ]
   },
   {
-    "category": "AC/Heating",
+    "category": "Auto Industry Economics",
     "questions": [
-      {"q": "What cools the air?", "a": "Compressor", "value": 100},
-      {"q": "What’s Freon?", "a": "Refrigerant", "value": 200},
-      {"q": "What’s a cabin filter?", "a": "Air filter for interior", "value": 300},
-      {"q": "Heater core does what?", "a": "Heats cabin", "value": 400},
-      {"q": "What’s a blend door?", "a": "Controls air mix", "value": 500}
-    ]
-  },
-  {
-    "category": "General",
-    "questions": [
-      {"q": "Meineke’s slogan?", "a": "On with life.", "value": 100},
-      {"q": "What’s an estimate?", "a": "Cost calculation", "value": 200},
-      {"q": "What’s a work order?", "a": "Repair documentation", "value": 300},
-      {"q": "ASE stands for?", "a": "Automotive Service Excellence", "value": 400},
-      {"q": "What’s a courtesy check?", "a": "Free inspection", "value": 500}
+      {"q": "When carmakers produce more vehicles than people want to buy, this basic economic condition occurs.", "a": "What is a surplus?", "value": 100},
+      {"q": "This American automaker, founded by Henry Ford, revolutionized car production with the moving assembly line.", "a": "What is Ford Motor Company?", "value": 200},
+      {"q": "When demand for electric vehicles rises, the price of this critical battery metal—also used in phones—often increases.", "a": "What is lithium?", "value": 300},
+      {"q": "The term for when a single company dominates the car market and controls prices—something modern antitrust laws aim to prevent.", "a": "What is a monopoly?", "value": 400},
+      {"q": "This economic theory explains how automakers achieve lower per-unit costs as they produce more vehicles through efficiency and specialization.", "a": "What are economies of scale?", "value": 500}
     ]
   }
 ]

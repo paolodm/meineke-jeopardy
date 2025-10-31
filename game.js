@@ -52,39 +52,92 @@ let questionCloseTimerId = null; // Timer for the 5-second delay before closing
 // --- New Questions Data Structure --- 
 const newQuestionsData = {
   "Meineke Services": [
-    ["This service keeps your brakes functioning safely.", "What is a brake service?"],
-    ["Recommended every 3,000–5,000 miles for engine health.", "What is an oil change?"],
-    ["We inspect tread depth and rotate these for safety.", "What are tires?"],
-    ["This service uses diagnostic tools to identify issues.", "What is a diagnostic check?"],
-    ["This keeps your car's A/C system running cool.", "What is AC repair?"]
+    [
+      "This is the routine service Meineke offers to keep your engine lubricated and running smoothly.",
+      "What is an oil change?"
+    ],
+    [
+      "If your car squeals when stopping, Meineke can inspect and replace these essential safety components.",
+      "What are brake pads?"
+    ],
+    [
+      "Meineke provides this service to ensure your wheels are properly angled for even tire wear and straight driving.",
+      "What is a wheel alignment?"
+    ],
+    [
+      "Meineke technicians can diagnose and repair this system that keeps you cool in summer and defrosts your windows in winter.",
+      "What is the air conditioning (A/C) system?"
+    ],
+    [
+      "Meineke’s signature service package combines inspections and maintenance across multiple systems, including fluids, filters, and tire pressure, to keep your vehicle running efficiently.",
+      "What is the Meineke Total Car Care Inspection?"
+    ]
   ],
   "Car Care Know-How": [
-    ["You should change this fluid more often than most others.", "What is engine oil?"],
-    ["This light means your engine needs attention.", "What is the check engine light?"],
-    ["Worn out brake pads can cause this grinding part to wear.", "What is the rotor?"],
-    ["This belt is critical for engine timing.", "What is the timing belt?"],
-    ["Rotating your tires helps extend this.", "What is tire life?"]
+    [
+      "This dashboard light, shaped like a little oil can, means it’s time to check this crucial fluid level.",
+      "What is the engine oil?"
+    ],
+    [
+      "You should rotate these every 5,000 to 7,500 miles to promote even wear and extend their life.",
+      "What are tires?"
+    ],
+    [
+      "To prevent your car from overheating, regularly check this liquid that circulates through the radiator.",
+      "What is coolant (or antifreeze)?"
+    ],
+    [
+      "When your steering wheel vibrates at high speeds, it might be time to have these balanced.",
+      "What are the tires (or wheels)?"
+    ],
+    [
+      "This system uses belts, pulleys, and tensioners to synchronize the crankshaft and camshaft—if it fails, major engine damage can occur.",
+      "What is the timing belt (or timing chain) system?"
+    ]
   ],
   "Auto Parts & Tariffs": [
-    ["This term refers to a tax placed on imported goods like car parts.", "What is a tariff?"],
-    ["Because of inventory shortages, this European automaker has paused new car sales in the U.S.", "What is Land Rover (or Audi/Volkswagen)?"],
-    ["This Japanese automaker has held steady on prices while others raise theirs.", "What is Toyota?"],
-    ["This is the current length of the pause on new auto tariffs in the U.S.", "What is 30 days?"],
-    ["Tariffs and shipping issues have made it harder to get parts from this continent.", "What is Europe?"]
+    [
+      "This part, found under the hood, starts your car’s engine with a spark of electrical energy.",
+      "What is the battery?"
+    ],
+    [
+      "These components, filled with air and rubber, are often imported and can be affected by trade tariffs on foreign-made products.",
+      "What are tires?"
+    ],
+    [
+      "The metal duties known as tariffs are placed on imported goods — like brake rotors or exhaust systems — to protect this type of domestic industry.",
+      "What is the automotive manufacturing industry?"
+    ],
+    [
+      "A trade tariff raising prices on imported catalytic converters might increase repair costs for this part of your vehicle, which controls emissions.",
+      "What is the exhaust system?"
+    ],
+    [
+      "When tariffs increase the cost of imported steel and aluminum, it directly impacts the price of this large, protective car component that forms the vehicle’s outer structure.",
+      "What is the car body (or chassis)?"
+    ]
   ],
-  "AC-tion Time!": [
-    ["A must-have gas for a functioning car A/C.", "What is refrigerant (like R-134a)?"],
-    ["A broken compressor means your A/C won’t do this.", "What is cool the air?"],
-    ["This filter can affect your A/C airflow.", "What is the cabin air filter?"],
-    ["A leak in this part often causes weak cooling.", "What is the condenser?"],
-    ["This tool checks A/C pressure and refrigerant levels.", "What is a manifold gauge set?"]
-  ],
-  "Behind the Shop Doors": [
-    ["This shop is located in Sterling, VA.", "What is Meineke #2701?"],
-    ["This scanner helps diagnose engine and emissions issues.", "What is an OBD-II scanner?"],
-    ["Customers appreciate this quality most in our team.", "What is honesty or customer service?"],
-    ["We recommend this before long road trips.", "What is a maintenance check?"],
-    ["This is the most common issue we fix during summer.", "What is A/C not blowing cold air?"]
+  "Auto Industry Economics": [
+    [
+      "When carmakers produce more vehicles than people want to buy, this basic economic condition occurs.",
+      "What is a surplus?"
+    ],
+    [
+      "This American automaker, founded by Henry Ford, revolutionized car production with the moving assembly line.",
+      "What is Ford Motor Company?"
+    ],
+    [
+      "When demand for electric vehicles rises, the price of this critical battery metal—also used in phones—often increases.",
+      "What is lithium?"
+    ],
+    [
+      "The term for when a single company dominates the car market and controls prices—something modern antitrust laws aim to prevent.",
+      "What is a monopoly?"
+    ],
+    [
+      "This economic theory explains how automakers achieve lower per-unit costs as they produce more vehicles through efficiency and specialization.",
+      "What are economies of scale?"
+    ]
   ]
 };
 
@@ -153,13 +206,20 @@ function renderScoreboard() {
 
 function setupBoard() {
   board.innerHTML = '';
-  loadQuestions(); 
-  boardState = Array(boardData.length).fill(0).map(() => Array(boardData[0].questions.length).fill(false));
-  questionAttemptState = Array(boardData.length).fill(null).map(
-      () => Array(boardData[0].questions.length).fill(null).map(() => new Set())
+  loadQuestions();
+  if (!boardData.length) {
+    board.style.removeProperty('grid-template-columns');
+    return;
+  }
+
+  board.style.gridTemplateColumns = `repeat(${boardData.length}, 1fr)`;
+
+  boardState = boardData.map(category => category.questions.map(() => false));
+  questionAttemptState = boardData.map(category =>
+    category.questions.map(() => new Set())
   );
 
-  for (let c = 0; c < 5; c++) {
+  for (let c = 0; c < boardData.length; c++) {
     const catTile = document.createElement('div');
     catTile.className = 'tile category';
     catTile.textContent = boardData[c]?.category || `Category ${c+1}`;
@@ -167,9 +227,9 @@ function setupBoard() {
   }
 
   for (let r = 0; r < 5; r++) {
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < boardData.length; c++) {
       const questionData = boardData[c]?.questions[r];
-      if (!questionData) continue; 
+      if (!questionData) continue;
 
       const tile = document.createElement('div');
       tile.className = 'tile';
@@ -185,10 +245,13 @@ function setupBoard() {
       board.appendChild(tile);
     }
   }
-  finalDrawer.classList.remove('drawer-open'); 
+  finalDrawer.classList.remove('drawer-open');
 
   // Add event listeners AFTER board HTML is set
-  board.querySelectorAll('.tile:not(.category-header)').forEach(tile => {
+  board.querySelectorAll('.tile').forEach(tile => {
+    if (tile.classList.contains('category')) {
+      return;
+    }
     tile.addEventListener('click', handleTileClick);
     // Add keydown listener for accessibility if needed
     // tile.addEventListener('keydown', handleTileKeydown);
@@ -631,8 +694,8 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
   // FIX: Use correct property for question text
   questionModalText.textContent = questionData.q || questionData.question;
   questionModalAnswer.style.display = 'none'; // Ensure answer is hidden initially
-  revealAnswerBtn.style.display = 'block'; // Show the reveal button
-  questionModalTeams.style.display = 'block'; // Ensure team buttons container is visible
+  revealAnswerBtn.style.display = 'inline-flex'; // Show the reveal button
+  questionModalTeams.style.display = 'flex'; // Ensure team buttons container is visible
   questionModalTeams.innerHTML = ''; // Clear previous team buttons
 
   // Create buttons for teams that HAVEN'T answered this question incorrectly yet
@@ -649,6 +712,10 @@ function openQuestionModal(catIndex, qIndex, questionData, tileElement) {
       <button class="correct-btn" data-team="${i}" data-outcome="correct" ${disabledAttr}>✅ Correct</button>
       <button class="incorrect-btn" data-team="${i}" data-outcome="incorrect" ${disabledAttr}>❌ Incorrect</button>
     `;
+
+    if (isLockedOut) {
+      teamDiv.classList.add('locked-out');
+    }
 
     // Add event listeners only to non-disabled buttons
     if (!isLockedOut) {
@@ -705,7 +772,7 @@ function revealModalAnswer() {
   console.log("Answer <p> current display:", window.getComputedStyle(answerP).display);
   console.log("Answer <span> current textContent:", answerSpan.textContent);
   // --- End logging ---
-  questionModalAnswer.style.display = 'block'; // Show the answer section (the <p> tag)
+  questionModalAnswer.style.display = 'flex'; // Show the answer section (the <p> tag)
   revealAnswerBtn.style.display = 'none'; // Hide the reveal button itself
   questionModalTeams.style.display = 'none'; // Hide team buttons when answer is shown
 }
@@ -771,6 +838,7 @@ function handleQuestionOutcome(event) {
         const incorrectButton = button.parentElement.querySelector('.incorrect-btn');
         if (correctButton) correctButton.disabled = true;
         if (incorrectButton) incorrectButton.disabled = true;
+        button.parentElement.classList.add('locked-out');
         console.log(`Team ${teamIndex} missed, buttons disabled. Others can still answer.`);
         // DO NOT close modal here, let timer run or other teams answer.
       }
